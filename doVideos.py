@@ -11,13 +11,16 @@ import shutil
 # ../downloads/bagit/bagit-4.4/bin/bag create bobdylan_bag bag2
 
 path='/tmp'
-destbagit='/home/thw/bagit/newbags'
-vidhome='/mnt/cifs/video/'
+#destbagit='/home/thw/bagit/newbags'
+destbagit='/mnt/cifs/nvideo/'
+vidhome='/mnt/cifs/video'
 bagitcmd='/home/thw/downloads/bagit/bagit-4.4/bin/bag '
+onlyHigh='_H-'
+pattern='_H-.*mp4'
 
 for dirpath, dirnames, files in os.walk(path):
   # now do each file
-  for f in fnmatch.filter(files, 'bag-info.txt16*txt'):
+  for f in fnmatch.filter(files, 'bag-info.txt*txt'):
     print f
     print "DO FILE"
     vidlist=[]
@@ -25,12 +28,14 @@ for dirpath, dirnames, files in os.walk(path):
     for line in open(path + "/" + f):
       print "\tDO LINE .."
       if re.search('DC-RELATION',line):
-        dclist.append(line)
         myLine=line.split('/')
         tmpFile=myLine.pop().rstrip()
-        if re.search('mp4',tmpFile):
+        #if re.search('mp4',tmpFile):
+        if re.search(pattern,tmpFile):
           print "\tOK for " + tmpFile + " for " + f + "\n"
           vidlist.append(tmpFile)
+          if not line in dclist:
+            dclist.append(line)
       if re.search('DC-Identifier',line):
         myLine=line.split(':')
         myID=myLine.pop().strip()
@@ -39,18 +44,20 @@ for dirpath, dirnames, files in os.walk(path):
         try:
           print "TRY mkdir on " + bagpath
           os.makedirs(bagpath)
-          dclist.append(line)
+          if not line in dclist:
+            dclist.append(line)
         except OSError as exc:
           if exc.errno == errno.EEXIST and os.path.isdir(path):
             print "ok err .. exist .."
             pass
           else: raise
       else:
-        dclist.append(line)
+        if not line in dclist:
+          dclist.append(line)
 
     for vid in vidlist:
       srcvid=vidhome + vid
-      print "TRY " + bagpath
+      print "TRY " + bagpath + " for " + vid
       try:
         shutil.copy2(srcvid,bagpath)
       except  IOError as e:
