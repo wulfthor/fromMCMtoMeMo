@@ -12,7 +12,7 @@ import shutil
 
 path='/tmp'
 #destbagit='/home/thw/bagit/newbags'
-destbagit='/mnt/cifs/nvideo/'
+destbagit='/mnt/cifs/xvideo/'
 vidhome='/mnt/cifs/video'
 bagitcmd='/home/thw/downloads/bagit/bagit-4.4/bin/bag '
 onlyHigh='_H-'
@@ -40,7 +40,7 @@ for dirpath, dirnames, files in os.walk(path):
         myLine=line.split(':')
         myID=myLine.pop().strip()
         print "\t" + myID
-        bagpath=destbagit + "/data_" + myID
+        bagpath=destbagit + "data_" + myID
         try:
           print "TRY mkdir on " + bagpath
           os.makedirs(bagpath)
@@ -56,8 +56,8 @@ for dirpath, dirnames, files in os.walk(path):
           dclist.append(line)
 
     for vid in vidlist:
-      srcvid=vidhome + vid
-      print "TRY " + bagpath + " for " + vid
+      srcvid=vidhome + "/" + vid
+      print "TRY " + bagpath + " for " + srcvid
       try:
         shutil.copy2(srcvid,bagpath)
       except  IOError as e:
@@ -75,15 +75,15 @@ for dirpath, dirnames, files in os.walk(path):
     # add DC-metadata to the bag-info.txt file
     targetFile=destbagit + "/" + tmpBagName + "/" + "bag-info.txt"
     print "\tTRY: " + targetFile
-    try:
+    if os.path.isfile(targetFile):
       fh=open(targetFile, 'a')
       for dc in dclist:
         if not "DC-SOURCE" in dc:
           print "\tDCZZ: " + dc
           fh.write(dc)
       fh.close()
-    except OSError as e:
-      print e
+    else:
+      print "NO such file " + targetFile
 
     for dc in dclist:
       print "\tDC: " + dc
