@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#####################################
+# script will walk through xml-dump from MCM
+# DC-SOURCE will be the delimiter for creating
+# individual bag-info.txt-files
+# The split will be done with awk
+#####################################
+
+
 input=$1
 itype=$2
 deflang=DA
@@ -20,11 +28,7 @@ fi
 
 
 if [ $itype -gt 2 ]; then
-  #perl -pi -e 's/\s{,3}<Title>(.*)<\/Title>/DC-Title: $deflang \1/' $input
-  #perl -pi -e 's/\s{,2}<Title>(.*)<\/Title>/DC-Title: \1/' $input
-  #perl -pi -e 's/<Title>(.*)<\/Title>/DC-Titlex: $ENV{MYLANG} \1/' $input
   perl -pi -e 's/^\s{1,2}<Title>(.*)<\/Title>/DC-Title: \1/' $input
-  #perl -pi -e 's/<Title>(.*)<\/Title>/DC-Title: \1/' $input
   perl -pi -e 's/<MCM.Data.DTO.ExtendedObjectInfo>/DC-SOURCE:/g' $input
   perl -pi -e 's/<Abstract>(.*)<\/Abstract>/DC-Abstract: \1/g' $input
   perl -pi -e 's/<Description>(.*)<\/Description>/DC-Description: \1/g' $input
@@ -34,14 +38,7 @@ if [ $itype -gt 2 ]; then
   perl -pi -e 's/<Person Name=(.*) Role=(.*) \/>/DC-Creator: \2 \1/g' $input
   perl -pi -e 's/<Person Name=(.*) Role=(.*) \/>/DC-Creator: \2 \1/g' $input
   perl -pi -e 's/<Person Name=(.*) Role=(.*) \/>/DC-Creator: \2 \1/g' $input
-  #perl -pi -e 's/\// \& /g' $input
   perl -pi -e 's/<DownloadURL>(.*)<\/DownloadURL>/DC-RELATION: \1/g' $input
   perl -pi -e 's/"//g' $input
 fi
-
-#egrep "DC-" "$input" 
-#echo "DONE"
-egrep "DC-" "$input" | sed 's/^[ ]*//g' > $bagfile
-
-
-#grep DC- "$input" | sort | uniq | sed 's/^[ ]*//g' >> $bagfile
+egrep "DC-" "$input" | sed 's/^[ ]*//g' > $bagf
